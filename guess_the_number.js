@@ -127,10 +127,10 @@ function gameHome() {
     const rangeStart = generateNumber(1, 40);
     const rangeEnd = generateNumber(50, 100);
     const attempts = generateNumber(1, 10);
+    const numberToGuess = generateNumber(rangeStart, rangeEnd);
 
     console.log(printGreetingMsg(name));
     console.log(printInfoMsg(rangeStart, rangeEnd, attempts));
-    const numberToGuess = generateNumber(rangeStart, rangeEnd);
 
     playGame(rangeStart, rangeEnd, attempts, numberToGuess);
     console.log(WIN_OR_LOSE_MSG);
