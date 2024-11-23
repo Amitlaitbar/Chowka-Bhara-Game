@@ -1,95 +1,148 @@
+let WIN_OR_LOSE_MSG = '';
+
 function generateNumber(rangeStart, rangeEnd) {
   const randomNumber = Math.random() * (rangeEnd - rangeStart) + rangeStart;
   return Math.round(randomNumber);
 }
 
-function toContinue(startNum, endNum, guessedNumber) {
-  if (confirm('\nDo you want to continue ?')) {
-    startGame(startNum, endNum, 3);
-  } else {
-    console.log('\nThe number was..', guessedNumber);
+function takeInput(string) {
+  return prompt(string);
+}
+
+function isValidNumber(guessedNumber) {
+  return !!guessedNumber;
+}
+
+function isNumberGreater(guessedNumber, numberToGuess) {
+  return guessedNumber > numberToGuess;
+}
+
+function isNumberLess(guessedNumber, numberToGuess) {
+  return guessedNumber < numberToGuess;
+}
+
+function isNumberMatched(number, numberToGuess) {
+  return number === numberToGuess;
+}
+
+function printDashedLine() {
+  return '\n----------------------------------------------------';
+}
+
+function printDesignLine() {
+  return '\n-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-';
+}
+
+function getNumberStatus(guessedNumber, numberToGuess) {
+  if (isNumberGreater(guessedNumber, numberToGuess)) {
+    let msgSegment = "\n" + guessedNumber + " Too high! Try a smaller number.";
+    msgSegment += printDashedLine();
+
+    return msgSegment;
   }
 
-  return '\nGoodbye .. Have a Good Day !!';
-}
+  if (isNumberLess(guessedNumber, numberToGuess)) {
+    let msgSegment = "\n" + guessedNumber + " Too low! Try a higher number.";
+    msgSegment += printDashedLine();
 
-function printEndmsg(startNum, endNum, guessedNumber) {
-  const firstSegment = "\n>>>>Oh no! You've used all your attempts.\n";
-  const seccondSegment = "Better luck next time!";
-  const thirdSegment = toContinue(startNum, endNum, guessedNumber);
-
-  return firstSegment + seccondSegment + thirdSegment;
-}
-
-function printWinningMsg(number) {
-  const firstSegment = "\t\n✨✨✨ You've Made it. The number was " + number + "!";
-  const seccondSegment = '\n\tCongratulations...💐💐💐 ';
-  const thirdSegment = '-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_';
-
-  return firstSegment + seccondSegment + thirdSegment;
-}
-
-function getNumberStatus(startNum, endNum, maxAttempts, guessedNumber) {
-  if (maxAttempts < 1) {
-    return printEndmsg(startNum, endNum, guessedNumber);
+    return msgSegment;
   }
 
-  console.log("\n🧐 Take a guess! (Remaining attempts: " + maxAttempts + ")\n");
-  const number = +prompt('Number => ');
+  return;
+}
 
-  if (!number) {
-    console.log('\n----------------------------------------------------');
-    console.log('\t >>>>>>> Enter valid Input !');
-    console.log('----------------------------------------------------\n');
+function winningMsg(guessedNumber) {
+  let msgSegment = "\t\n✨You've Made it. The number was " + guessedNumber + "!";
+  msgSegment += '\n\tCongratulations...💐💐💐 ';
+  msgSegment += printDesignLine();
 
-    return getNumberStatus(startNum, endNum, maxAttempts, guessedNumber);
+  return msgSegment;
+}
+
+function confirmation(questionString) {
+  return confirm(questionString);
+}
+
+function wantsToContinue() {
+  return confirmation('\nDo you want to continue ?');
+}
+
+function losingMsg(numberToGuess) {
+  let msgSegment = "\n>>>>Oh no! You've used all your attempts.\n";
+  msgSegment += 'The Number Was ..' + numberToGuess;
+  msgSegment += "\nBetter luck next time!\n";
+
+  return msgSegment;
+}
+
+function takeAGuessMsg(attempts) {
+  console.log("\n🧐 Take a guess! (Remaining attempts: " + attempts + ")\n");
+  return;
+}
+
+function playGame(rangeStart, rangeEnd, attempts, numberToGuess) {
+  if (attempts < 1) {
+    WIN_OR_LOSE_MSG = losingMsg(numberToGuess);
+    return;
   }
 
-  if (number === guessedNumber) {
-    return printWinningMsg(number)
+  takeAGuessMsg(attempts);
+  const guessedNumber = +takeInput('Enter Number =>');
+
+  if (!isValidNumber(guessedNumber)) {
+    console.log('Invalid Input !!');
+    playGame(rangeStart, rangeEnd, attempts, numberToGuess);
   }
 
-  if (number > guessedNumber) {
-    console.log("\n" + number + " Too high! Try a smaller number.");
-    console.log('----------------------------------------------------');
-
-    return getNumberStatus(startNum, endNum, maxAttempts - 1, guessedNumber);
+  if (isNumberMatched(guessedNumber, numberToGuess)) {
+    WIN_OR_LOSE_MSG = winningMsg(guessedNumber);
+    return;
   }
 
-  if (number < guessedNumber) {
-    console.log("\n" + number + " Too low! Try a higher number.");
-    console.log('\n----------------------------------------------------');
+  console.log(getNumberStatus(guessedNumber, numberToGuess));
 
-    return getNumberStatus(startNum, endNum, maxAttempts - 1, guessedNumber);
+  playGame(rangeStart, rangeEnd, attempts - 1, numberToGuess);
+}
+
+function printGreetingMsg(name) {
+  let msgSegment = printDesignLine();
+  msgSegment += '\n\t🏆 Welcome ' + name + ' to Guess the Number Game 🏆';
+  msgSegment += printDesignLine();
+
+  return msgSegment;
+}
+
+function printInfoMsg(rangeStart, rangeEnd, attempts) {
+  let msgSegment = '\nThe secret number is between ' + rangeStart + ' and ';
+  msgSegment += rangeEnd + '. You have ' + attempts + ' attempts to find it.';
+
+  return msgSegment;
+}
+
+function gameHome() {
+  const wantsToPlay = confirmation('\n >>>>> Are you ready to start a game ?');
+
+  if (wantsToPlay) {
+    const name = takeInput('\nEnter Your Name ');
+    const rangeStart = generateNumber(1, 40);
+    const rangeEnd = generateNumber(50, 100);
+    const attempts = generateNumber(1, 10);
+
+    console.log(printGreetingMsg(name));
+    console.log(printInfoMsg(rangeStart, rangeEnd, attempts));
+    const numberToGuess = generateNumber(rangeStart, rangeEnd);
+
+    playGame(rangeStart, rangeEnd, attempts, numberToGuess);
+    console.log(WIN_OR_LOSE_MSG);
+
+    if (wantsToContinue()) {
+      gameHome();
+    }
+  }
+
+  if (!wantsToPlay) {
+    console.log('\nOk... Fine 😜');
   }
 }
 
-function startGame(startNum, endNum, maxAttempts, name) {
-  const startSegment = '\nThe secret number is between ' + startNum + ' and ';
-  const endSegment = endNum + `. You have ${maxAttempts} attempts to find it.`;
-
-  console.log(startSegment + endSegment);
-
-  const guessedNumber = generateNumber(startNum, endNum);
-
-  console.log(getNumberStatus(startNum, endNum, maxAttempts, guessedNumber));
-}
-
-const wantsToPlay = confirm('\n >>>>> Are you ready to start a game ?');
-
-if (wantsToPlay) {
-  const name = prompt('\nEnter Your Name ');
-  const rangeStart = generateNumber(1, 40);
-  const rangeEnd = generateNumber(50, 100);
-  const attempts = generateNumber(1, 10);
-
-  console.log('\n-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_');
-  console.log(`\t🏆 Welcome ${name} to Guess the Number Game 🏆`);
-  console.log('-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_');
-
-  startGame(rangeStart, rangeEnd, attempts, name);
-}
-
-if (!wantsToPlay) {
-  console.log('\nOk... Fine 😜');
-}
+gameHome();
